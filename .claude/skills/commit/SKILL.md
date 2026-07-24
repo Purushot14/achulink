@@ -52,6 +52,12 @@ Why:  <the motivation — problem solved, goal, or trigger>
 What: <the concrete change>
 How:  <the approach — key decisions / notable details; use bullets for multi-part changes>
 
+Verified:
+- <evidence recorded AT COMMIT TIME — one line per fact, only what actually happened>
+- tests: <e.g. `pytest` 42 passed / none touched>
+- secret-scan: clean
+- docs: <updated with this commit / n-a>
+
 - <optional headline-outcome bullets; inline emoji ok, e.g. 🔢 15 shapes scrubbed (was 3)>
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
@@ -59,6 +65,10 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 - Subject in the **imperative** ("add", "fix", "rename") — not past tense.
 - Body: 1–3 lines each for a small change; **expand freely** (paragraphs + bullets + outcome bullets) for a
   substantial one, like the rich example below. Don't pad trivial changes.
+- **`Verified:` trailer — record evidence, don't re-derive it later.** Whatever was actually checked at commit
+  time (tests run + result, secret scan, docs updated, lint) goes on `Verified:` lines. Downstream tooling
+  (the `pr` skill's checklist pre-ticking) reads these lines verbatim — a fact not recorded here is a fact the
+  PR can't tick. Skip lines that don't apply; never write one that didn't happen.
 - Drop the `Co-Authored-By` line if you don't want AI attribution in this repo.
 
 ## Module / scope — dynamic, from the code
