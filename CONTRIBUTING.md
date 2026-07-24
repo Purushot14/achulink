@@ -12,5 +12,12 @@ reports, and feedback on the architecture.
 - Keep modules small and well-bounded; add / adjust an ADR (`docs/adr/`) for architectural changes.
 - **No secrets in commits.**
 
+## AI-assisted contributing (optional)
+If you use [Claude Code](https://claude.com/claude-code), this repo ships helpers:
+- **`/commit`** — commit-message conventions (emoji + `category(module)` + What/Why/How) → `.claude/skills/commit/`
+- **`/docs`** — how docs/ADRs are kept in step with code → `.claude/skills/docs/`
+- **`contribution-reviewer` agent** — ask it to self-review your branch/diff against these rules before you
+  open a PR → `.claude/agents/contribution-reviewer.md`
+
 ## Adding a connector
 _Connector authoring guide coming as the engine stabilizes._
