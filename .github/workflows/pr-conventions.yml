@@ -38,9 +38,10 @@ jobs:
           fail=0
           while IFS= read -r subject; do
             # "<emoji> <category>(<module>): <summary>" — leading emoji (non-alnum), then
-            # category(module): summary. Merge commits are exempt.
-            case "$subject" in Merge\ *) continue;; esac
-            if echo "$subject" | grep -qE '^[^a-zA-Z0-9[:space:]].* [a-z][a-z-]*\([a-z0-9._-]+\): .+'; then
+            # category(module): summary. The (module) scope is OPTIONAL (pre-code commits omit it,
+            # per .claude/skills/commit/SKILL.md). Merge commits and the repo's initial commit are exempt.
+            case "$subject" in Merge\ *|"Initial commit") continue;; esac
+            if echo "$subject" | grep -qE '^[^a-zA-Z0-9[:space:]].* [a-z][a-z-]*(\([a-z0-9._-]+\))?: .+'; then
               echo "OK:   $subject"
             else
               echo "::error::Bad commit subject: '$subject' — expected '<emoji> <category>(<module>): <summary>'."
