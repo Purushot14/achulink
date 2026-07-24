@@ -1,0 +1,54 @@
+name: pr-conventions
+
+# Blocks non-conforming PRs: title must be "<emoji> <module>: <summary>" and every commit
+# "<emoji> <category>(<module>): <summary>" (see .claude/skills/{pr,commit}/SKILL.md).
+# Make this check REQUIRED in the repo ruleset so GitHub physically blocks merge on failure.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  conventions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # "<emoji> <module>: <summary>" — leading non-alphanumeric (emoji), a lowercase
+          # module (optionally a+b), then ": " and a summary. Optional trailing " (#123)".
+          if echo "$TITLE" | grep -qE '^[^a-zA-Z0-9[:space:]].* [a-z][a-z0-9+-]*: .+'; then
+            echo "PR title OK: $TITLE"
+          else
+            echo "::error::PR title must be '<emoji> <module>: <summary>' (got: '$TITLE')."
+            echo "::error::Use the pr skill (.claude/skills/pr/SKILL.md) to generate it."
+            exit 1
+          fi
+
+      - name: Check commit message format
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          fail=0
+          while IFS= read -r subject; do
+            # "<emoji> <category>(<module>): <summary>" — leading emoji (non-alnum), then
+            # category(module): summary. The (module) scope is OPTIONAL (pre-code commits omit it,
+            # per .claude/skills/commit/SKILL.md). Merge commits and the repo's initial commit are exempt.
+            case "$subject" in Merge\ *|"Initial commit") continue;; esac
+            if echo "$subject" | grep -qE '^[^a-zA-Z0-9[:space:]].* [a-z][a-z-]*(\([a-z0-9._-]+\))?: .+'; then
+              echo "OK:   $subject"
+            else
+              echo "::error::Bad commit subject: '$subject' — expected '<emoji> <category>(<module>): <summary>'."
+              fail=1
+            fi
+          done < <(git log --format=%s "$BASE".."$HEAD")
+          if [ "$fail" = 1 ]; then
+            echo "::error::Fix with an interactive rebase, or commit via the commit skill (.claude/skills/commit/SKILL.md)."
+            exit 1
+          fi
